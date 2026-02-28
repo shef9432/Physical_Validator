@@ -1,39 +1,35 @@
-from core.corruptor import PhysicalValidator
+import cv2
 import numpy as np
+import os
+from core.corruptor import PhysicalValidator
+from utils.logger import AuditLogger
 
-def run_audit(mode="standard"):
+def run_deep_audit():
+    input_file = "data/input/sample.jpg"
+    if not os.path.exists(input_file):
+        print(f"❌ Input image not found: {input_file}")
+        return
+
+    img = cv2.imread(input_file)
     pv = PhysicalValidator()
-    
-    # 工业分级定义
-    configs = {
-        "fast": {  # 快速模式：每种参数只跑 3 档
-            "lux": [0.5, 1.0, 1.5],
-            "dpi": [1.0, 0.5, 0.2],
-            "mblur": [0, 10, 30],
-            "defocus": [0, 3],
-            "iso": [0, 40]
-        },
-        "deep_audit": { # 深度审计模式：高密度采样，生成平滑曲线
-            "lux": np.linspace(0.1, 1.8, 15),       # 15个光照梯度
-            "dpi": np.linspace(1.0, 0.05, 10),     # 10个分辨率梯度
-            "mblur": np.linspace(0, 50, 10),       # 10个速度梯度
-            "defocus": np.linspace(0, 8, 8),       # 8个失焦梯度
-            "iso": np.linspace(0, 100, 8)          # 8个噪声梯度
-        }
-    }
+    logger = AuditLogger()
+    uid = "PROJ_7432_UNIT_01"
 
-    conf = configs[mode]
-    input_img = "data/input/sample.jpg" # 假设的输入
-    uid = "PartA_001"
-    
-    # 执行精细审计
-    img = cv2.imread(input_img)
-    pv.apply_illumination(img, uid, conf['lux'])
-    pv.apply_resolution(img, uid, conf['dpi'])
-    pv.apply_motion_blur(img, uid, conf['mblur'])
-    pv.apply_defocus(img, uid, conf['defocus'])
-    pv.apply_sensor_noise(img, uid, conf['iso'])
+    print("🔥 Starting multi-dimensional high-resolution audit generation...")
+
+    # Illumination (Lux): 50 samples
+    pv.apply_illumination(img, uid, np.linspace(0.05, 3.0, 50))
+    # Resolution (DPI): 30 samples
+    pv.apply_resolution(img, uid, np.linspace(0.1, 1.0, 30))
+    # Motion Blur (MBlur): 40 samples
+    pv.apply_motion_blur(img, uid, np.linspace(1, 100, 40))
+    # Defocus Loss: 40 samples
+    pv.apply_defocus(img, uid, np.linspace(0, 15, 40))
+    # Sensor Noise (ISO): 40 samples
+    pv.apply_sensor_noise(img, uid, np.linspace(0, 120, 40))
+
+    logger.build_template()
+    print("✨ Physical stress-test samples and audit list are ready.")
 
 if __name__ == "__main__":
-    # 周一在部长面前展示，先开 deep_audit 吓死他（划掉）惊艳他
-    run_audit(mode="deep_audit")
+    run_deep_audit()
