@@ -1,0 +1,16 @@
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Heavy Data (Local only)
+data/audit_payload/
+data/*.csv
+data/*.png
+
+# Model Weights
+*.pt
+*.onnx
+*.weights
+
+# OS
+.DS_Store
