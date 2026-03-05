@@ -1,11 +1,22 @@
 import os
-import json
 import pandas as pd
+import json
 from utils.logger import AuditLogger
 
-class GenericAuditor:
-    def __init__(self, model_handler):
-        self.model = model_handler # Pass your model object here
+class UniversalAuditor:
+    def __init__(self):
+        self.baseline_data = None # Storage for original image results
+
+    def get_inference(self, image_path):
+        """
+        🚀 THE ADAPTATION LAYER
+        This is where the user connects their specific algorithm.
+        For GitHub: This stays as a stub.
+        For Company: Call the Customer's API/SDK/EXE here.
+        """
+        # Example structure returned by any vision system:
+        # return [{"box": [10, 10, 50, 50], "label": 0, "conf": 0.9}]
+        raise NotImplementedError("Connect your model's inference call here.")
 
     def calculate_iou(self, boxA, boxB):
         xA, yA, xB, yB = max(boxA[0], boxB[0]), max(boxA[1], boxB[1]), min(boxA[2], boxB[2]), min(boxA[3], boxB[3])
@@ -14,43 +25,28 @@ class GenericAuditor:
         boxBArea = (boxB[2] - boxB[0]) * (boxB[3] - boxB[1])
         return interArea / float(boxAArea + boxBArea - interArea + 1e-6)
 
-    def audit_image(self, img_path, gt_json_path):
-        """
-        Validates inference against Ground Truth JSON.
-        Expected JSON format: {"boxes": [[x1,y1,x2,y2],...], "labels": [0, 1, ...]}
-        """
-        # --- REPLACE THIS WITH YOUR REAL INFERENCE CALL ---
-        # predictions = self.model.predict(img_path) 
-        predictions = [] # Mocked empty list
-        # --------------------------------------------------
-
-        with open(gt_json_path, 'r') as f:
-            gt = json.load(f)
-
-        valid_conf = 0.0
-        for pred in predictions:
-            for gt_box, gt_label in zip(gt['boxes'], gt['labels']):
-                iou = self.calculate_iou(pred['box'], gt_box)
-                if iou > 0.5 and pred['label'] == gt_label:
-                    valid_conf = max(valid_conf, pred['conf'])
+    def run_audit(self, original_img, audit_dir):
+        # 1. Capture Baseline from the "Perfect" Image
+        print(f"--- Establishing Baseline from Original ---")
+        self.baseline_data = self.get_inference(original_img)
         
-        return valid_conf
-
-def run_system_audit():
-    logger = AuditLogger()
-    df = pd.read_csv(logger.report_path)
-    
-    # Example: Auditing different versions of your engine
-    auditor = GenericAuditor(model_handler=None)
-    
-    results = []
-    for _, row in df.iterrows():
-        img_full_path = os.path.join("data/audit_payload", row['Image_Path'])
-        # Reference the original JSON for the source image
-        gt_path = "data/input/ground_truth.json" 
+        # 2. Compare against degraded versions
+        logger = AuditLogger()
+        df = pd.read_csv(logger.report_path)
         
-        conf = auditor.audit_image(img_full_path, gt_path)
-        results.append(conf)
-    
-    df['Validated_Conf'] = results
-    logger.update_results(df)
+        relative_scores = []
+        for _, row in df.iterrows():
+            img_path = os.path.join(audit_dir, row['Image_Path'])
+            current_preds = self.get_inference(img_path)
+            
+            # Find the best match for each baseline object
+            best_conf = 0.0
+            for b_obj in self.baseline_data:
+                for p_obj in current_preds:
+                    iou = self.calculate_iou(b_obj['box'], p_obj['box'])
+                    if iou > 0.5 and b_obj['label'] == p_obj['label']:
+                        best_conf = max(best_conf, p_obj['conf'])
+            relative_scores.append(best_conf)
+            
+        df['Validated_Conf'] = relative_scores
+        logger.update_results(df)
