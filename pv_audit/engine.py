@@ -1,0 +1,23 @@
+from .stress import StressSimulator
+
+class AuditEngine:
+    def __init__(self, adapter):
+        self.adapter = adapter
+        self.operators = {
+            "Lux+": StressSimulator.apply_lux_plus,
+            "MBlur": StressSimulator.apply_mblur,
+            "ISO": StressSimulator.apply_iso_noise
+        }
+
+    def run_audit(self, image: np.ndarray, dims: list, lvls: list) -> list:
+        report_data = []
+        for dim in dims:
+            for lvl in lvls:
+                stressed_img = self.operators[dim](image, lvl)
+                prediction = self.adapter.predict(stressed_img)
+                report_data.append({
+                    "dimension": dim, 
+                    "level": lvl, 
+                    "conf": prediction['conf']
+                })
+        return report_data
