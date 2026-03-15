@@ -1,6 +1,6 @@
-# PVA(Physical_Validator_Audit) 🛡️
+# PVA (Physical Validator Audit) 🛡️
 
-**Quantifying the Operational Design Domain (ODD) for Industrial AI Systems.**
+**Quantifying the Operational Design Domain (ODD) for Industrial AI.**
 
 [![Field](https://img.shields.io/badge/Industry-Industrial%20Automation-blue.svg)]()
 [![Field](https://img.shields.io/badge/Field-Computer%20Vision-blue.svg)]()
@@ -12,10 +12,6 @@
 [![Autonomous](https://img.shields.io/badge/Autonomous-Drive%20ODD-blueviolet.svg)]()
 [![SmartMfg](https://img.shields.io/badge/Smart%20Mfg-Industry%204.0-critical.svg)]()
 [![Status](https://img.shields.io/badge/Status-Production--Proven-blue.svg)]()
-
-# PVA (Physical Validator Audit) 🛡️
-
-**Quantifying the Operational Design Domain (ODD) for Industrial AI.**
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Python](https://img.shields.io/badge/Python-3.8+-green.svg)]()
