@@ -52,7 +52,7 @@ PVA is an **Industrial AI Reliability Assurance System**. We believe that in mis
 ## 🚀 Quick Start
 
 ```python
-from pva import PhysCorruptor, Auditor
+from PV_audit import PhysCorruptor, Auditor
 ```
 
 # 1. Initialize the audit engine
